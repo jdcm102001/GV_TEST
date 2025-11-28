@@ -1,0 +1,238 @@
+{
+  "routes": [
+    {
+      "id": "callao_shanghai",
+      "from": {
+        "port": "Callao",
+        "country": "Peru",
+        "coordinates": [-77.1278, -12.0464]
+      },
+      "to": {
+        "port": "Shanghai",
+        "country": "China",
+        "coordinates": [121.4737, 31.2304]
+      },
+      "freightRate": 45,
+      "transitDays": 35,
+      "waypoints": [
+        [-77.1278, -12.0464],
+        [-90, -5],
+        [-120, 0],
+        [-150, 10],
+        [-180, 15],
+        [150, 20],
+        [121.4737, 31.2304]
+      ],
+      "description": "Trans-Pacific route from Peru to China"
+    },
+    {
+      "id": "callao_houston",
+      "from": {
+        "port": "Callao",
+        "country": "Peru",
+        "coordinates": [-77.1278, -12.0464]
+      },
+      "to": {
+        "port": "Houston",
+        "country": "USA",
+        "coordinates": [-95.3698, 29.7604]
+      },
+      "freightRate": 25,
+      "transitDays": 15,
+      "waypoints": [
+        [-77.1278, -12.0464],
+        [-80, 0],
+        [-82, 10],
+        [-90, 20],
+        [-95.3698, 29.7604]
+      ],
+      "description": "Panama Canal route from Peru to US Gulf"
+    },
+    {
+      "id": "valparaiso_houston",
+      "from": {
+        "port": "Valparaiso",
+        "country": "Chile",
+        "coordinates": [-71.6273, -33.0458]
+      },
+      "to": {
+        "port": "Houston",
+        "country": "USA",
+        "coordinates": [-95.3698, 29.7604]
+      },
+      "freightRate": 22,
+      "transitDays": 12,
+      "waypoints": [
+        [-71.6273, -33.0458],
+        [-75, -20],
+        [-80, -5],
+        [-82, 10],
+        [-90, 20],
+        [-95.3698, 29.7604]
+      ],
+      "description": "Panama Canal route from Chile to US Gulf"
+    },
+    {
+      "id": "valparaiso_shanghai",
+      "from": {
+        "port": "Valparaiso",
+        "country": "Chile",
+        "coordinates": [-71.6273, -33.0458]
+      },
+      "to": {
+        "port": "Shanghai",
+        "country": "China",
+        "coordinates": [121.4737, 31.2304]
+      },
+      "freightRate": 42,
+      "transitDays": 33,
+      "waypoints": [
+        [-71.6273, -33.0458],
+        [-90, -20],
+        [-120, -10],
+        [-150, 0],
+        [-180, 10],
+        [150, 20],
+        [121.4737, 31.2304]
+      ],
+      "description": "Trans-Pacific route from Chile to China"
+    },
+    {
+      "id": "durban_rotterdam",
+      "from": {
+        "port": "Durban",
+        "country": "South Africa",
+        "coordinates": [31.0218, -29.8587]
+      },
+      "to": {
+        "port": "Rotterdam",
+        "country": "Netherlands",
+        "coordinates": [4.4777, 51.9244]
+      },
+      "freightRate": 30,
+      "transitDays": 20,
+      "waypoints": [
+        [31.0218, -29.8587],
+        [20, -35],
+        [0, -10],
+        [-10, 20],
+        [-5, 40],
+        [4.4777, 51.9244]
+      ],
+      "description": "Cape route from Africa to Europe"
+    },
+    {
+      "id": "durban_shanghai",
+      "from": {
+        "port": "Durban",
+        "country": "South Africa",
+        "coordinates": [31.0218, -29.8587]
+      },
+      "to": {
+        "port": "Shanghai",
+        "country": "China",
+        "coordinates": [121.4737, 31.2304]
+      },
+      "freightRate": 35,
+      "transitDays": 25,
+      "waypoints": [
+        [31.0218, -29.8587],
+        [50, -20],
+        [80, 0],
+        [100, 10],
+        [121.4737, 31.2304]
+      ],
+      "description": "Indian Ocean route from Africa to China"
+    },
+    {
+      "id": "callao_rotterdam",
+      "from": {
+        "port": "Callao",
+        "country": "Peru",
+        "coordinates": [-77.1278, -12.0464]
+      },
+      "to": {
+        "port": "Rotterdam",
+        "country": "Netherlands",
+        "coordinates": [4.4777, 51.9244]
+      },
+      "freightRate": 35,
+      "transitDays": 25,
+      "waypoints": [
+        [-77.1278, -12.0464],
+        [-80, 10],
+        [-60, 20],
+        [-40, 30],
+        [-10, 45],
+        [4.4777, 51.9244]
+      ],
+      "description": "Atlantic route from Peru to Europe"
+    },
+    {
+      "id": "durban_mumbai",
+      "from": {
+        "port": "Durban",
+        "country": "South Africa",
+        "coordinates": [31.0218, -29.8587]
+      },
+      "to": {
+        "port": "Mumbai",
+        "country": "India",
+        "coordinates": [72.8777, 19.0760]
+      },
+      "freightRate": 28,
+      "transitDays": 15,
+      "waypoints": [
+        [31.0218, -29.8587],
+        [45, -15],
+        [60, 5],
+        [72.8777, 19.0760]
+      ],
+      "description": "Indian Ocean route from Africa to India"
+    }
+  ],
+  "ports": {
+    "Callao": {
+      "coordinates": [-77.1278, -12.0464],
+      "country": "Peru",
+      "region": "americas",
+      "type": "origin"
+    },
+    "Valparaiso": {
+      "coordinates": [-71.6273, -33.0458],
+      "country": "Chile",
+      "region": "americas",
+      "type": "origin"
+    },
+    "Durban": {
+      "coordinates": [31.0218, -29.8587],
+      "country": "South Africa",
+      "region": "africa",
+      "type": "origin"
+    },
+    "Shanghai": {
+      "coordinates": [121.4737, 31.2304],
+      "country": "China",
+      "region": "asia",
+      "type": "destination"
+    },
+    "Houston": {
+      "coordinates": [-95.3698, 29.7604],
+      "country": "USA",
+      "region": "americas",
+      "type": "destination"
+    },
+    "Rotterdam": {
+      "coordinates": [4.4777, 51.9244],
+      "country": "Netherlands",
+      "region": "europe",
+      "type": "destination"
+    },
+    "Mumbai": {
+      "coordinates": [72.8777, 19.0760],
+      "country": "India",
+      "region": "asia",
+      "type": "destination"
+    }
+  }
+}

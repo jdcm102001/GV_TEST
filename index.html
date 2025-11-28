@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GV_TEST - Copper Trading Simulator</title>
+
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/tiers.css">
+</head>
+<body>
+    <!-- ================================================================== -->
+    <!-- TIER 1 SIMPLIFIED LAYOUT                                           -->
+    <!-- ================================================================== -->
+    <div id="layout-simplified" class="layout layout-simplified hidden">
+        <!-- Simplified Header -->
+        <header class="header-simplified">
+            <div class="header-left">
+                <h1 class="logo">GV_TEST</h1>
+                <span class="tier-badge-simple">Tier 1: Single Cargo</span>
+            </div>
+            <div class="header-center">
+                <div id="tier-progress-container-simple"></div>
+            </div>
+            <div class="header-right">
+                <div class="stat-simple">
+                    <span class="stat-label">Funds</span>
+                    <span class="stat-value" id="funds-simple">$500,000</span>
+                </div>
+                <div class="stat-simple">
+                    <span class="stat-label">P&L</span>
+                    <span class="stat-value" id="pnl-simple">$0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Simplified Main Content -->
+        <main class="main-simplified">
+            <!-- Left: Trading Cards -->
+            <div class="trading-cards">
+                <!-- Buy Card -->
+                <div class="trade-card buy-card">
+                    <div class="card-header">
+                        <span class="card-icon">📦</span>
+                        <h2>Buy Copper</h2>
+                    </div>
+                    <div class="supplier-info">
+                        <div class="avatar avatar-carlos"></div>
+                        <div class="supplier-details">
+                            <h3 id="supplier-name-simple">Carlos Mendez</h3>
+                            <p id="supplier-company-simple">Antamina Mining Co., Peru</p>
+                        </div>
+                    </div>
+                    <div class="trade-details">
+                        <div class="detail-row">
+                            <span>Cargo Size</span>
+                            <span>25,000 MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>LME Price</span>
+                            <span id="buy-price-simple">$8,500/MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Premium</span>
+                            <span id="buy-premium-simple">+$85/MT</span>
+                        </div>
+                        <div class="detail-row total">
+                            <span>Total Cost</span>
+                            <span id="buy-total-simple">$214,625,000</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-buy btn-large" id="btn-buy-simple" onclick="Trading.showBuyModal()">
+                        BUY FROM CARLOS
+                    </button>
+                </div>
+
+                <!-- Sell Card -->
+                <div class="trade-card sell-card">
+                    <div class="card-header">
+                        <span class="card-icon">💰</span>
+                        <h2>Sell Copper</h2>
+                    </div>
+                    <div class="buyer-info">
+                        <div class="avatar avatar-wei"></div>
+                        <div class="buyer-details">
+                            <h3 id="buyer-name-simple">Wei Chen</h3>
+                            <p id="buyer-company-simple">Shanghai Metals, China</p>
+                        </div>
+                    </div>
+                    <div class="trade-details">
+                        <div class="detail-row">
+                            <span>Cargo Size</span>
+                            <span>25,000 MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>LME Price</span>
+                            <span id="sell-price-simple">$8,500/MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Premium</span>
+                            <span id="sell-premium-simple">+$120/MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Freight Cost</span>
+                            <span id="freight-cost-simple">-$45/MT</span>
+                        </div>
+                        <div class="detail-row total">
+                            <span>Net Revenue</span>
+                            <span id="sell-total-simple">$214,375,000</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sell btn-large" id="btn-sell-simple" onclick="Trading.showSellModal()" disabled>
+                        SELL TO WEI
+                    </button>
+                    <p class="btn-hint" id="sell-hint-simple">Buy copper first to sell</p>
+                </div>
+            </div>
+
+            <!-- Right: Map and Progress -->
+            <div class="map-and-progress">
+                <!-- Map Container -->
+                <div class="map-container-simple">
+                    <div id="map-simple" class="map"></div>
+                    <div class="map-legend">
+                        <span class="legend-item"><span class="dot origin"></span> Origin: Callao, Peru</span>
+                        <span class="legend-item"><span class="dot destination"></span> Destination: Shanghai, China</span>
+                    </div>
+                </div>
+
+                <!-- Active Position (if any) -->
+                <div class="position-card-simple hidden" id="active-position-simple">
+                    <h3>Active Cargo</h3>
+                    <div class="position-details">
+                        <div class="detail-row">
+                            <span>Status</span>
+                            <span id="position-status-simple">In Transit</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Buy Price</span>
+                            <span id="position-buy-price">$8,585/MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Current LME</span>
+                            <span id="position-current-price">$8,500/MT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Unrealized P&L</span>
+                            <span id="position-unrealized-pnl" class="pnl">$0</span>
+                        </div>
+                    </div>
+                    <div class="position-progress">
+                        <div class="voyage-progress">
+                            <div class="voyage-fill" id="voyage-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="voyage-text" id="voyage-text">Day 0 of 35</span>
+                    </div>
+                </div>
+
+                <!-- Progress Tracker -->
+                <div class="progress-tracker-simple">
+                    <h3>Your Progress</h3>
+                    <div id="tier-progress-container"></div>
+                    <div class="next-unlock">
+                        <span class="lock-icon">🔒</span>
+                        <span>Complete 3 profitable trades to unlock <strong>Tier 2: Timing Game</strong></span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Help Button -->
+        <button class="help-button" onclick="Microlearning.showHelp()">
+            <span>?</span>
+        </button>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TIER 2+ STANDARD LAYOUT                                            -->
+    <!-- ================================================================== -->
+    <div id="layout-standard" class="layout layout-standard hidden">
+        <!-- Standard Header -->
+        <header class="header-standard">
+            <div class="header-section header-branding">
+                <h1 class="logo">GV_TEST</h1>
+                <div id="tier-badge-container"></div>
+            </div>
+
+            <div class="header-section header-timeline">
+                <div class="period-display">
+                    <span class="period-label">Period</span>
+                    <span class="period-value" id="current-period">January 2024</span>
+                </div>
+                <button class="btn btn-advance" id="btn-advance-month" onclick="App.advanceMonth()">
+                    Next Month →
+                </button>
+            </div>
+
+            <div class="header-section header-financials">
+                <div class="stat-box">
+                    <span class="stat-label">Funds</span>
+                    <span class="stat-value" id="funds-display">$1,000,000</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">P&L</span>
+                    <span class="stat-value pnl" id="pnl-display">$0</span>
+                </div>
+                <div class="stat-box" id="buying-power-box">
+                    <span class="stat-label">Buying Power</span>
+                    <span class="stat-value" id="buying-power-display">$3,000,000</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Inventory</span>
+                    <span class="stat-value" id="inventory-display">0 MT</span>
+                </div>
+                <div class="stat-box" id="loc-box">
+                    <span class="stat-label">LOC Used</span>
+                    <span class="stat-value" id="loc-display">$0 / $2M</span>
+                </div>
+            </div>
+
+            <div class="header-section header-progress">
+                <div id="tier-progress-container-standard"></div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="main-standard">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" data-panel="markets" onclick="App.showPanel('markets')">
+                        <span class="nav-icon">🏭</span>
+                        <span class="nav-label">Markets</span>
+                    </button>
+                    <button class="nav-btn" data-panel="positions" onclick="App.showPanel('positions')">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Positions</span>
+                    </button>
+                    <button class="nav-btn" data-panel="futures" id="nav-futures" onclick="App.showPanel('futures')">
+                        <span class="nav-icon">📈</span>
+                        <span class="nav-label">Futures</span>
+                    </button>
+                    <button class="nav-btn" data-panel="analytics" onclick="App.showPanel('analytics')">
+                        <span class="nav-icon">📉</span>
+                        <span class="nav-label">Analytics</span>
+                    </button>
+                    <button class="nav-btn" data-panel="map" onclick="App.showPanel('map')">
+                        <span class="nav-icon">🗺️</span>
+                        <span class="nav-label">Map</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <button class="btn btn-help" onclick="Microlearning.showHelp()">
+                        <span>?</span> Help
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Workspace (2x2 Grid) -->
+            <div class="workspace" id="workspace">
+                <!-- Panel 1: Markets (Suppliers & Buyers) -->
+                <div class="panel" id="panel-markets">
+                    <div class="panel-header">
+                        <div class="panel-tabs">
+                            <button class="tab-btn active" data-tab="suppliers" onclick="Markets.showTab('suppliers')">Suppliers</button>
+                            <button class="tab-btn" data-tab="buyers" onclick="Markets.showTab('buyers')">Buyers</button>
+                        </div>
+                        <div class="panel-controls">
+                            <button class="panel-btn" onclick="App.maximizePanel('markets')">⤢</button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="tab-content active" id="tab-suppliers">
+                            <!-- Suppliers list populated by JS -->
+                        </div>
+                        <div class="tab-content" id="tab-buyers">
+                            <!-- Buyers list populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Map -->
+                <div class="panel" id="panel-map">
+                    <div class="panel-header">
+                        <h3>Maritime Routes</h3>
+                        <div class="panel-controls">
+                            <button class="panel-btn" onclick="App.maximizePanel('map')">⤢</button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div id="map-standard" class="map"></div>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Positions -->
+                <div class="panel" id="panel-positions">
+                    <div class="panel-header">
+                        <div class="panel-tabs">
+                            <button class="tab-btn active" data-tab="physical" onclick="Positions.showTab('physical')">Physical</button>
+                            <button class="tab-btn" data-tab="futures-pos" id="tab-futures-pos" onclick="Positions.showTab('futures-pos')">Futures</button>
+                        </div>
+                        <div class="panel-controls">
+                            <button class="panel-btn" onclick="App.maximizePanel('positions')">⤢</button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="tab-content active" id="tab-physical">
+                            <!-- Physical positions populated by JS -->
+                            <div class="empty-state">No open positions</div>
+                        </div>
+                        <div class="tab-content" id="tab-futures-pos">
+                            <!-- Futures positions populated by JS -->
+                            <div class="empty-state">No futures positions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 4: Analytics -->
+                <div class="panel" id="panel-analytics">
+                    <div class="panel-header">
+                        <div class="panel-tabs">
+                            <button class="tab-btn active" data-tab="prices" onclick="Analytics.showTab('prices')">Prices</button>
+                            <button class="tab-btn" data-tab="performance" onclick="Analytics.showTab('performance')">Performance</button>
+                        </div>
+                        <div class="panel-controls">
+                            <button class="panel-btn" onclick="App.maximizePanel('analytics')">⤢</button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="tab-content active" id="tab-prices">
+                            <canvas id="price-chart"></canvas>
+                        </div>
+                        <div class="tab-content" id="tab-performance">
+                            <div class="performance-stats">
+                                <!-- Performance stats populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Futures Trading (hidden by default, Tier 4 only) -->
+                <div class="panel hidden" id="panel-futures">
+                    <div class="panel-header">
+                        <h3>Futures Trading</h3>
+                        <div class="panel-controls">
+                            <button class="panel-btn" onclick="App.maximizePanel('futures')">⤢</button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <!-- Futures trading interface populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- MODALS CONTAINER                                                   -->
+    <!-- ================================================================== -->
+    <div id="modals-container"></div>
+
+    <!-- ================================================================== -->
+    <!-- LOADING SCREEN                                                     -->
+    <!-- ================================================================== -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <h1>GV_TEST</h1>
+            <h2>Copper Trading Simulator</h2>
+            <div class="loading-spinner"></div>
+            <p>Loading market data...</p>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- SCRIPTS                                                            -->
+    <!-- ================================================================== -->
+    <!-- Core -->
+    <script src="js/core/gameConfig.js"></script>
+    <script src="js/core/gameState.js"></script>
+    <script src="js/core/progression.js"></script>
+
+    <!-- Systems -->
+    <script src="js/systems/microlearning.js"></script>
+    <script src="js/systems/scoring.js"></script>
+    <script src="js/systems/trading.js"></script>
+
+    <!-- Widgets -->
+    <script src="js/widgets/markets.js"></script>
+    <script src="js/widgets/positions.js"></script>
+    <script src="js/widgets/futures.js"></script>
+    <script src="js/widgets/map.js"></script>
+    <script src="js/widgets/analytics.js"></script>
+
+    <!-- Data -->
+    <script src="data/months/january.js"></script>
+    <script src="data/months/february.js"></script>
+    <script src="data/months/march.js"></script>
+    <script src="data/months/april.js"></script>
+    <script src="data/months/may.js"></script>
+    <script src="data/months/june.js"></script>
+
+    <!-- Main App -->
+    <script src="js/app.js"></script>
+</body>
+</html>

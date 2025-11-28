@@ -1,0 +1,708 @@
+/**
+ * tiers.css - Tier-Specific Layout Styles for GV_TEST
+ */
+
+/* ============================================================================
+   TIER 1: SIMPLIFIED LAYOUT
+   ============================================================================ */
+
+/* Header - Simplified */
+.header-simplified {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-bg-tertiary);
+    height: var(--header-height);
+}
+
+.header-simplified .header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.header-simplified .logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-copper);
+}
+
+.header-simplified .header-center {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 var(--spacing-xl);
+}
+
+.header-simplified .header-right {
+    display: flex;
+    gap: var(--spacing-xl);
+}
+
+.stat-simple {
+    text-align: right;
+}
+
+.stat-simple .stat-label {
+    display: block;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-simple .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Main Content - Simplified */
+.main-simplified {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl);
+    overflow: hidden;
+}
+
+/* Trading Cards Container */
+.trading-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* Trade Card (Buy/Sell) */
+.trade-card {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-fast);
+}
+
+.trade-card:hover {
+    transform: translateY(-2px);
+}
+
+.trade-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+.trade-card .card-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.trade-card .card-icon {
+    font-size: 28px;
+}
+
+/* Supplier/Buyer Info */
+.supplier-info,
+.buyer-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.supplier-details h3,
+.buyer-details h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+}
+
+.supplier-details p,
+.buyer-details p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+/* Trade Details */
+.trade-details {
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Button Hint */
+.btn-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-sm);
+}
+
+/* Buy Card Accent */
+.buy-card {
+    border-left: 4px solid var(--color-success);
+}
+
+/* Sell Card Accent */
+.sell-card {
+    border-left: 4px solid var(--color-accent-primary);
+}
+
+/* Map and Progress Container */
+.map-and-progress {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.map-container-simple {
+    flex: 1;
+    min-height: 300px;
+    background: var(--color-bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+}
+
+.map-container-simple .map {
+    flex: 1;
+}
+
+/* Active Position Card (Simplified) */
+.position-card-simple {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--color-copper);
+}
+
+.position-card-simple h3 {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-md);
+}
+
+.position-progress {
+    margin-top: var(--spacing-md);
+}
+
+.voyage-progress {
+    height: 6px;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: var(--spacing-xs);
+}
+
+.voyage-fill {
+    height: 100%;
+    background: var(--color-copper);
+    transition: width var(--transition-normal);
+}
+
+.voyage-text {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+/* Progress Tracker (Simplified) */
+.progress-tracker-simple {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.progress-tracker-simple h3 {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-md);
+}
+
+.next-unlock {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.lock-icon {
+    font-size: 18px;
+}
+
+/* ============================================================================
+   TIER 2+: STANDARD LAYOUT
+   ============================================================================ */
+
+/* Header - Standard */
+.header-standard {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-lg);
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-bg-tertiary);
+    height: var(--header-height);
+    gap: var(--spacing-lg);
+}
+
+.header-section {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.header-branding {
+    min-width: 180px;
+}
+
+.header-branding .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-copper);
+}
+
+.header-timeline {
+    gap: var(--spacing-lg);
+}
+
+.period-display {
+    text-align: center;
+}
+
+.period-label {
+    display: block;
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.period-value {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.header-financials {
+    flex: 1;
+    justify-content: center;
+    gap: var(--spacing-lg);
+}
+
+.stat-box {
+    text-align: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+}
+
+.stat-box .stat-label {
+    display: block;
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-box .stat-value {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.header-progress {
+    min-width: 200px;
+}
+
+/* Main Content - Standard */
+.main-standard {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-bg-tertiary);
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-md) 0;
+}
+
+.sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+}
+
+.nav-btn:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+}
+
+.nav-btn.active {
+    background: var(--color-bg-tertiary);
+    color: var(--color-copper);
+    border-left-color: var(--color-copper);
+}
+
+.nav-icon {
+    font-size: 20px;
+}
+
+.nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-footer {
+    padding: var(--spacing-md);
+}
+
+.btn-help {
+    width: 100%;
+    padding: var(--spacing-sm);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-md);
+    font-size: 12px;
+}
+
+/* Workspace (2x2 Grid) */
+.workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    overflow: hidden;
+}
+
+/* Panels */
+.panel {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel.maximized {
+    position: fixed;
+    top: var(--header-height);
+    left: var(--sidebar-width);
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    border-radius: 0;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-bg-secondary);
+}
+
+.panel-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.panel-tabs {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.tab-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.tab-btn:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+.tab-btn.active {
+    background: var(--color-copper);
+    color: white;
+}
+
+.panel-controls {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.panel-btn {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    transition: all var(--transition-fast);
+}
+
+.panel-btn:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+.panel-content {
+    flex: 1;
+    padding: var(--spacing-md);
+    overflow: auto;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    height: 100%;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ============================================================================
+   TIER-SPECIFIC VISIBILITY
+   ============================================================================ */
+
+/* Hide futures nav button by default (show in Tier 4) */
+#nav-futures,
+#tab-futures-pos {
+    display: none;
+}
+
+body.tier-4 #nav-futures,
+body.tier-4 #tab-futures-pos {
+    display: flex;
+}
+
+/* Hide LOC box in Tier 1 */
+body.tier-1 #loc-box,
+body.tier-1 #buying-power-box {
+    display: none;
+}
+
+/* ============================================================================
+   MARKET CARDS (Suppliers/Buyers)
+   ============================================================================ */
+
+.market-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.market-card:hover {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-copper);
+}
+
+.market-card .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+}
+
+.market-card-info {
+    flex: 1;
+}
+
+.market-card-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.market-card-info p {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.market-card-price {
+    text-align: right;
+}
+
+.market-card-price .price {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.market-card-price .premium {
+    font-size: 11px;
+    color: var(--color-success);
+}
+
+/* ============================================================================
+   POSITION CARDS
+   ============================================================================ */
+
+.position-item {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-left: 3px solid var(--color-copper);
+}
+
+.position-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.position-id {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.position-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-secondary);
+}
+
+.position-status.in-transit {
+    background: var(--color-warning);
+    color: #000;
+}
+
+.position-status.delivered {
+    background: var(--color-success);
+    color: white;
+}
+
+.position-item-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+    font-size: 12px;
+}
+
+.position-detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.position-detail-label {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.position-detail-value {
+    font-weight: 600;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+
+@media (max-width: 1200px) {
+    .main-simplified {
+        grid-template-columns: 1fr;
+    }
+
+    .map-and-progress {
+        max-height: 400px;
+    }
+
+    .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 300px);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-simplified {
+        flex-wrap: wrap;
+        height: auto;
+        padding: var(--spacing-md);
+    }
+
+    .header-simplified .header-center {
+        order: 3;
+        width: 100%;
+        max-width: none;
+        margin: var(--spacing-md) 0 0;
+    }
+
+    .header-standard {
+        flex-wrap: wrap;
+        height: auto;
+        padding: var(--spacing-sm);
+    }
+
+    .header-financials {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .stat-box {
+        padding: var(--spacing-xs);
+    }
+
+    .sidebar {
+        width: 60px;
+    }
+
+    .nav-label {
+        display: none;
+    }
+
+    .trading-cards {
+        gap: var(--spacing-md);
+    }
+
+    .trade-card {
+        padding: var(--spacing-md);
+    }
+}
