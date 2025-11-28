@@ -41,7 +41,7 @@ const GameState = {
         funds: 500000,
         startingFunds: 500000,
         locUsed: 0,
-        locLimit: 2000000,
+        locLimit: 500000, // Reduced for balance
 
         // Positions
         physicalPositions: [], // Active physical trades

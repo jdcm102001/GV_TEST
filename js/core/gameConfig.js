@@ -19,11 +19,30 @@ const GameConfig = {
 
     // Game constants
     constants: {
-        cargoSize: 25000, // MT per cargo
         defaultFunds: 500000, // Starting funds
-        locLimit: 2000000, // Letter of Credit limit
+        locLimit: 500000, // Letter of Credit limit (reduced for balance)
         futuresContractSize: 25, // MT per futures contract
         marginRequirement: 0.10, // 10% margin for futures
+    },
+
+    // Tier-based cargo settings (balanced for starting funds)
+    tierSettings: {
+        1: {
+            cargoSize: 10,      // 10 MT (~$90,000 per trade) - learn basics
+            maxCargoes: 1,      // Only one cargo at a time
+        },
+        2: {
+            cargoSize: 25,      // 25 MT (~$225,000 per trade)
+            maxCargoes: 2,
+        },
+        3: {
+            cargoSize: 50,      // 50 MT (~$450,000 per trade)
+            maxCargoes: 3,
+        },
+        4: {
+            cargoSize: 100,     // 100 MT (~$900,000 per trade)
+            maxCargoes: 5,
+        }
     },
 
     // Tier definitions
@@ -496,6 +515,33 @@ function getBuyerProfile(buyerId) {
     return GameConfig.buyerProfiles[buyerId] || null;
 }
 
+/**
+ * Get cargo size for current tier
+ * @returns {number} Cargo size in MT
+ */
+function getCargoSize() {
+    const currentTier = typeof GameState !== 'undefined' ? GameState.getCurrentTier() : 1;
+    return GameConfig.tierSettings[currentTier]?.cargoSize || 10;
+}
+
+/**
+ * Get max cargoes allowed for current tier
+ * @returns {number} Maximum concurrent cargoes
+ */
+function getMaxCargoes() {
+    const currentTier = typeof GameState !== 'undefined' ? GameState.getCurrentTier() : 1;
+    return GameConfig.tierSettings[currentTier]?.maxCargoes || 1;
+}
+
+/**
+ * Get tier settings for current tier
+ * @returns {Object} Tier settings
+ */
+function getTierSettings() {
+    const currentTier = typeof GameState !== 'undefined' ? GameState.getCurrentTier() : 1;
+    return GameConfig.tierSettings[currentTier] || GameConfig.tierSettings[1];
+}
+
 // Export for module usage (if using modules)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -510,6 +556,9 @@ if (typeof module !== 'undefined' && module.exports) {
         isSimplifiedLayout,
         getAvailableExchanges,
         getSupplierProfile,
-        getBuyerProfile
+        getBuyerProfile,
+        getCargoSize,
+        getMaxCargoes,
+        getTierSettings
     };
 }

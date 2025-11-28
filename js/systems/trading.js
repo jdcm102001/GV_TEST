@@ -26,7 +26,7 @@ const Trading = {
         const useM1 = config.features.m1Pricing && supplier.pricingType === 'm1';
         const basePrice = getRelevantPrice(this.currentMonthData, 'lme', useM1);
         const premium = supplier.premium || 0;
-        const quantity = GameConfig.constants.cargoSize;
+        const quantity = getCargoSize(); // Tier-based cargo size
 
         const perMT = basePrice + premium;
         const total = perMT * quantity;
@@ -56,7 +56,7 @@ const Trading = {
         const basePrice = getRelevantPrice(this.currentMonthData, exchange, useM1);
         const premium = buyer.premium || 0;
         const freightCost = route ? route.freightRate : 0;
-        const quantity = GameConfig.constants.cargoSize;
+        const quantity = getCargoSize(); // Tier-based cargo size
 
         const grossPerMT = basePrice + premium;
         const netPerMT = grossPerMT - freightCost;
@@ -89,7 +89,7 @@ const Trading = {
         const sellRevenue = this.calculateSellRevenue(buyer, route);
 
         const profitPerMT = sellRevenue.perMT - buyCost.perMT;
-        const totalProfit = profitPerMT * GameConfig.constants.cargoSize;
+        const totalProfit = profitPerMT * getCargoSize();
         const marginPercent = (profitPerMT / buyCost.perMT) * 100;
 
         return {
@@ -224,7 +224,7 @@ const Trading = {
             side: 'long',
             supplierId: supplier.id,
             buyerId: null, // Set when selling
-            quantity: GameConfig.constants.cargoSize,
+            quantity: getCargoSize(), // Tier-based cargo size
             buyPrice: buyCost.perMT,
             buyCost: buyCost.total,
             buyMonth: GameState.getCurrentMonthIndex(),
