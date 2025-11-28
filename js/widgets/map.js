@@ -1,11 +1,20 @@
 /**
  * map.js - Mapbox Maritime Routes Widget for GV_TEST
+ *
+ * Handles:
+ * - Map initialization with proper world-wrapping
+ * - Maritime route rendering with antimeridian handling
+ * - Port markers
+ * - Ship animation along routes
  */
 
 const MapWidget = {
     // Mapbox instance
     map: null,
     mapSimple: null,
+
+    // Ship markers
+    shipMarkers: {},
 
     // Route layers
     routeLayers: [],
@@ -18,26 +27,46 @@ const MapWidget = {
         'Houston': [-95.3698, 29.7604],
         'Rotterdam': [4.4777, 51.9244],
         'Durban': [31.0218, -29.8587],
-        'Mumbai': [72.8777, 19.0760]
+        'Mumbai': [72.8777, 19.0760],
+        'Ningbo': [121.5440, 29.8683],
+        'Busan': [129.0756, 35.1796],
+        'Singapore': [103.8198, 1.3521]
     },
 
-    // Route definitions
+    // Route definitions - using continuous coordinates for antimeridian handling
+    // For westward Pacific routes, we continue past -180 using negative values
     routes: {
         'callao_shanghai': {
             id: 'callao_shanghai',
             from: 'Callao',
             to: 'Shanghai',
+            // Going WEST across Pacific - use continuous negative longitude
             waypoints: [
-                [-77.1278, -12.0464],   // Callao
-                [-90, -5],               // Pacific waypoint
-                [-120, 0],               // Mid Pacific
-                [-150, 10],              // Central Pacific
-                [-180, 15],              // Date line
-                [150, 20],               // Western Pacific
-                [121.4737, 31.2304]      // Shanghai
+                [-77.1278, -12.0464],   // Callao, Peru
+                [-100, -5],              // Eastern Pacific
+                [-130, 5],               // Central Pacific
+                [-160, 15],              // Western Pacific approach
+                [-180, 20],              // Date line
+                [-210, 25],              // Continuing west (same as 150°E)
+                [-238.53, 31.23]         // Shanghai (121.47°E as -238.53)
             ],
             color: '#17bf63',
             transitDays: 35
+        },
+        'valparaiso_shanghai': {
+            id: 'valparaiso_shanghai',
+            from: 'Valparaiso',
+            to: 'Shanghai',
+            waypoints: [
+                [-71.6273, -33.0458],   // Valparaiso, Chile
+                [-100, -20],             // Southeast Pacific
+                [-140, -5],              // Central Pacific
+                [-170, 10],              // Western Pacific
+                [-200, 20],              // Continuing west
+                [-238.53, 31.23]         // Shanghai
+            ],
+            color: '#17bf63',
+            transitDays: 33
         },
         'callao_houston': {
             id: 'callao_houston',
@@ -83,6 +112,22 @@ const MapWidget = {
             color: '#ffad1f',
             transitDays: 20
         },
+        'durban_shanghai': {
+            id: 'durban_shanghai',
+            from: 'Durban',
+            to: 'Shanghai',
+            // Going east from Africa to Asia
+            waypoints: [
+                [31.0218, -29.8587],    // Durban
+                [50, -15],               // Indian Ocean
+                [75, 0],                 // Central Indian Ocean
+                [95, 10],                // Bay of Bengal
+                [110, 20],               // South China Sea
+                [121.4737, 31.2304]      // Shanghai
+            ],
+            color: '#17bf63',
+            transitDays: 25
+        },
         'callao_rotterdam': {
             id: 'callao_rotterdam',
             from: 'Callao',
@@ -97,6 +142,20 @@ const MapWidget = {
             ],
             color: '#e0245e',
             transitDays: 25
+        },
+        'durban_mumbai': {
+            id: 'durban_mumbai',
+            from: 'Durban',
+            to: 'Mumbai',
+            waypoints: [
+                [31.0218, -29.8587],    // Durban
+                [45, -15],               // Mozambique Channel
+                [55, 0],                 // Indian Ocean
+                [65, 12],                // Arabian Sea
+                [72.8777, 19.0760]       // Mumbai
+            ],
+            color: '#9c27b0',
+            transitDays: 15
         }
     },
 
@@ -107,7 +166,7 @@ const MapWidget = {
         this.initMap('map-standard');
 
         // Init simplified map if in Tier 1
-        if (isSimplifiedLayout()) {
+        if (typeof isSimplifiedLayout === 'function' && isSimplifiedLayout()) {
             this.initMap('map-simple', true);
         }
 
@@ -123,14 +182,26 @@ const MapWidget = {
         const container = document.getElementById(containerId);
         if (!container) return;
 
+        if (typeof mapboxgl === 'undefined') {
+            console.error('[MapWidget] Mapbox GL JS not loaded');
+            return;
+        }
+
+        if (typeof GameConfig === 'undefined' || !GameConfig.mapbox) {
+            console.error('[MapWidget] GameConfig.mapbox not defined');
+            return;
+        }
+
         mapboxgl.accessToken = GameConfig.mapbox.token;
 
         const map = new mapboxgl.Map({
             container: containerId,
             style: GameConfig.mapbox.style,
-            center: isSimple ? [60, 5] : GameConfig.mapbox.center,
-            zoom: isSimple ? 1.5 : GameConfig.mapbox.zoom,
-            projection: 'mercator'
+            center: isSimple ? [-120, 10] : GameConfig.mapbox.center,
+            zoom: isSimple ? 1.2 : GameConfig.mapbox.zoom,
+            projection: 'mercator',
+            // Enable rendering beyond -180 to 180 for continuous routes
+            renderWorldCopies: true
         });
 
         map.on('load', () => {
@@ -163,8 +234,13 @@ const MapWidget = {
             this.getEnabledPorts();
 
         enabledPorts.forEach(portName => {
-            const coords = this.ports[portName];
+            let coords = this.ports[portName];
             if (!coords) return;
+
+            // For Asian ports when showing Pacific route, use negative longitude
+            if (isSimple && coords[0] > 100) {
+                coords = [coords[0] - 360, coords[1]];
+            }
 
             // Create marker element
             const el = document.createElement('div');
@@ -185,24 +261,40 @@ const MapWidget = {
      * @returns {Array}
      */
     getEnabledPorts() {
+        if (typeof getActiveConfig !== 'function') {
+            return Object.keys(this.ports);
+        }
+
         const config = getActiveConfig();
+        if (!config || !config.content) {
+            return Object.keys(this.ports);
+        }
+
         const ports = new Set();
 
         // Get ports from enabled suppliers
-        config.content.suppliers.forEach(supplierId => {
-            const profile = getSupplierProfile(supplierId);
-            if (profile && profile.port) {
-                ports.add(profile.port);
-            }
-        });
+        if (config.content.suppliers) {
+            config.content.suppliers.forEach(supplierId => {
+                if (typeof getSupplierProfile === 'function') {
+                    const profile = getSupplierProfile(supplierId);
+                    if (profile && profile.port) {
+                        ports.add(profile.port);
+                    }
+                }
+            });
+        }
 
         // Get ports from enabled buyers
-        config.content.buyers.forEach(buyerId => {
-            const profile = getBuyerProfile(buyerId);
-            if (profile && profile.port) {
-                ports.add(profile.port);
-            }
-        });
+        if (config.content.buyers) {
+            config.content.buyers.forEach(buyerId => {
+                if (typeof getBuyerProfile === 'function') {
+                    const profile = getBuyerProfile(buyerId);
+                    if (profile && profile.port) {
+                        ports.add(profile.port);
+                    }
+                }
+            });
+        }
 
         return Array.from(ports);
     },
@@ -212,10 +304,20 @@ const MapWidget = {
      * @param {Object} map
      */
     addEnabledRoutes(map) {
+        if (typeof getActiveConfig !== 'function') {
+            // Add all routes if no config
+            Object.values(this.routes).forEach(route => {
+                this.addRoute(map, route);
+            });
+            return;
+        }
+
         const config = getActiveConfig();
+        if (!config || !config.content) return;
+
         const enabledRoutes = config.content.routes === 'all' ?
             Object.keys(this.routes) :
-            config.content.routes;
+            (config.content.routes || []);
 
         enabledRoutes.forEach(routeId => {
             const route = this.routes[routeId];
@@ -226,13 +328,48 @@ const MapWidget = {
     },
 
     /**
+     * Fix coordinates for antimeridian crossing
+     * For routes going west to Asia, convert positive Asian longitudes to negative
+     * @param {Array} coordinates - Array of [lng, lat] pairs
+     * @returns {Array} Fixed coordinates
+     */
+    fixAntimeridianCoordinates(coordinates) {
+        if (!coordinates || coordinates.length < 2) return coordinates;
+
+        const originLng = coordinates[0][0];
+        const destLng = coordinates[coordinates.length - 1][0];
+
+        // Check if this is a westward Pacific route
+        // Origin in Americas (negative longitude) and destination in Asia (positive > 100)
+        if (originLng < -60 && destLng > 100) {
+            // Convert Asian coordinates to negative (subtract 360)
+            return coordinates.map(coord => {
+                const [lng, lat] = coord;
+                // Convert longitudes > 100 to negative equivalent
+                if (lng > 100) {
+                    return [lng - 360, lat];
+                }
+                return coord;
+            });
+        }
+
+        return coordinates;
+    },
+
+    /**
      * Add a route to the map
      * @param {Object} map
      * @param {Object} route
      */
     addRoute(map, route) {
+        if (!map || !route) return;
+
         const sourceId = `route-${route.id}`;
         const layerId = `route-line-${route.id}`;
+
+        // Route waypoints are already fixed in the route definitions
+        // but apply fix in case of dynamic routes
+        const fixedWaypoints = this.fixAntimeridianCoordinates(route.waypoints);
 
         // Create GeoJSON for the route
         const geojson = {
@@ -242,7 +379,7 @@ const MapWidget = {
             },
             geometry: {
                 type: 'LineString',
-                coordinates: route.waypoints
+                coordinates: fixedWaypoints
             }
         };
 
@@ -299,6 +436,7 @@ const MapWidget = {
      * @returns {Array} [lng, lat]
      */
     interpolateRoute(waypoints, progress) {
+        if (!waypoints || waypoints.length === 0) return [0, 0];
         if (progress <= 0) return waypoints[0];
         if (progress >= 1) return waypoints[waypoints.length - 1];
 
@@ -309,6 +447,8 @@ const MapWidget = {
 
         const start = waypoints[segmentIndex];
         const end = waypoints[Math.min(segmentIndex + 1, waypoints.length - 1)];
+
+        if (!start || !end) return waypoints[0];
 
         return [
             start[0] + (end[0] - start[0]) * segmentFraction,
@@ -323,27 +463,59 @@ const MapWidget = {
      */
     updateShipMarker(position, routeId) {
         const markerId = `ship-${routeId}`;
-        let marker = document.getElementById(markerId);
 
-        if (!marker) {
-            marker = document.createElement('div');
-            marker.id = markerId;
-            marker.className = 'ship-marker';
-            marker.innerHTML = '🚢';
+        // Update existing marker or create new one
+        if (this.shipMarkers[markerId]) {
+            this.shipMarkers[markerId].setLngLat(position);
+        } else {
+            const el = document.createElement('div');
+            el.id = markerId;
+            el.className = 'ship-marker';
+            el.innerHTML = '🚢';
 
-            // Add to both maps if they exist
+            // Add to main map
             if (this.map) {
-                new mapboxgl.Marker(marker)
+                const marker = new mapboxgl.Marker(el)
                     .setLngLat(position)
                     .addTo(this.map);
+                this.shipMarkers[markerId] = marker;
             }
-            if (this.mapSimple) {
-                const markerSimple = marker.cloneNode(true);
-                markerSimple.id = `${markerId}-simple`;
-                new mapboxgl.Marker(markerSimple)
+        }
+
+        // Also update simple map if exists
+        const simpleMarkerId = `${markerId}-simple`;
+        if (this.mapSimple) {
+            if (this.shipMarkers[simpleMarkerId]) {
+                this.shipMarkers[simpleMarkerId].setLngLat(position);
+            } else {
+                const elSimple = document.createElement('div');
+                elSimple.id = simpleMarkerId;
+                elSimple.className = 'ship-marker';
+                elSimple.innerHTML = '🚢';
+
+                const markerSimple = new mapboxgl.Marker(elSimple)
                     .setLngLat(position)
                     .addTo(this.mapSimple);
+                this.shipMarkers[simpleMarkerId] = markerSimple;
             }
+        }
+    },
+
+    /**
+     * Remove ship marker
+     * @param {string} routeId
+     */
+    removeShipMarker(routeId) {
+        const markerId = `ship-${routeId}`;
+        if (this.shipMarkers[markerId]) {
+            this.shipMarkers[markerId].remove();
+            delete this.shipMarkers[markerId];
+        }
+
+        const simpleMarkerId = `${markerId}-simple`;
+        if (this.shipMarkers[simpleMarkerId]) {
+            this.shipMarkers[simpleMarkerId].remove();
+            delete this.shipMarkers[simpleMarkerId];
         }
     },
 
@@ -351,6 +523,8 @@ const MapWidget = {
      * Update map based on current positions
      */
     update() {
+        if (typeof GameState === 'undefined' || !GameState.getPhysicalPositions) return;
+
         const positions = GameState.getPhysicalPositions();
 
         positions.forEach(pos => {
@@ -359,8 +533,9 @@ const MapWidget = {
                 const route = this.routes[routeId];
 
                 if (route) {
-                    const daysElapsed = GameState.getCurrentMonthIndex() - pos.buyMonth;
-                    const progress = Math.min(1, daysElapsed * 30 / route.transitDays);
+                    const currentMonth = GameState.getCurrentMonthIndex();
+                    const daysElapsed = (currentMonth - pos.buyMonth) * 30;
+                    const progress = Math.min(1, daysElapsed / route.transitDays);
                     this.animateShip(routeId, progress);
                 }
             }
@@ -377,6 +552,22 @@ const MapWidget = {
         if (this.mapSimple) {
             this.mapSimple.resize();
         }
+    },
+
+    /**
+     * Center map on a specific route
+     * @param {string} routeId
+     */
+    centerOnRoute(routeId) {
+        const route = this.routes[routeId];
+        if (!route || !this.map) return;
+
+        const coordinates = route.waypoints;
+        const bounds = coordinates.reduce((bounds, coord) => {
+            return bounds.extend(coord);
+        }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+        this.map.fitBounds(bounds, { padding: 50 });
     }
 };
 

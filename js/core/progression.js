@@ -134,12 +134,26 @@ const Progression = {
             this.checkAndProcessTierAdvancement();
         }
 
+        // Tier 2: Trigger M+1 settlement lesson on first M+1 trade
+        if (currentTier >= 2 && trade.pricingType === 'M+1') {
+            if (!GameState.hasLessonTrigger('firstM1Settlement')) {
+                GameState.setLessonTrigger('firstM1Settlement');
+                this.triggerContextualLesson('m1_pricing_explained');
+            }
+        }
+
         // Tier 3: Track basis trades
         if (currentTier === 3 && trade.type === 'basis' && pnl > 0) {
             const progress = GameState.getTierProgress();
             GameState.updateTierProgress({
                 basisTradesCompleted: progress.basisTradesCompleted + 1
             });
+
+            // Trigger basis trading lesson on first basis trade
+            if (!GameState.hasLessonTrigger('firstBasisTrade')) {
+                GameState.setLessonTrigger('firstBasisTrade');
+                this.triggerContextualLesson('basis_trading');
+            }
 
             this.checkAndProcessTierAdvancement();
         }
@@ -388,17 +402,19 @@ const Progression = {
      * @param {number} tier
      */
     showTierLessons(tier) {
-        const tierConfig = GameConfig.tiers[tier];
-        const lessons = tierConfig.lessons || [];
+        if (typeof Microlearning !== 'undefined') {
+            // Use the tier intro system which queues appropriate lessons
+            Microlearning.showTierIntro(tier);
+        }
+    },
 
-        if (lessons.length > 0 && typeof Microlearning !== 'undefined') {
-            // Show first lesson that hasn't been completed
-            for (const lessonId of lessons) {
-                if (!GameState.isLessonCompleted(lessonId)) {
-                    Microlearning.showLesson(lessonId);
-                    break;
-                }
-            }
+    /**
+     * Trigger a contextual lesson based on game events
+     * @param {string} lessonId
+     */
+    triggerContextualLesson(lessonId) {
+        if (typeof Microlearning !== 'undefined') {
+            Microlearning.triggerLesson(lessonId);
         }
     },
 

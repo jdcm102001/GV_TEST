@@ -69,6 +69,22 @@ const GameState = {
             selectedPosition: null,
             showTutorial: true,
             lessonsCompleted: []
+        },
+
+        // Microlearning tracking
+        shownLessons: [],
+        lessonTriggers: {
+            firstTrade: false,
+            firstLoss: false,
+            firstM1Settlement: false,
+            firstLOCUse: false,
+            firstBasisTrade: false,
+            firstFuturesPosition: false
+        },
+        quizResults: {
+            attempted: 0,
+            correct: 0,
+            byModule: {}
         }
     },
 
@@ -573,6 +589,81 @@ const GameState = {
     setSelectedPosition(positionId) {
         this.state.ui.selectedPosition = positionId;
         this.notifyListeners('selectionChange');
+    },
+
+    // ========================================================================
+    // MICROLEARNING TRACKING
+    // ========================================================================
+
+    /**
+     * Mark a lesson as shown
+     * @param {string} lessonId
+     */
+    markLessonShown(lessonId) {
+        if (!this.state.shownLessons.includes(lessonId)) {
+            this.state.shownLessons.push(lessonId);
+            this.notifyListeners('lessonShown');
+        }
+    },
+
+    /**
+     * Check if a lesson has been shown
+     * @param {string} lessonId
+     * @returns {boolean}
+     */
+    hasLessonBeenShown(lessonId) {
+        return this.state.shownLessons.includes(lessonId);
+    },
+
+    /**
+     * Track a quiz attempt
+     * @param {string} lessonId
+     * @param {boolean} correct
+     */
+    trackQuizAttempt(lessonId, correct) {
+        this.state.quizResults.attempted++;
+        if (correct) {
+            this.state.quizResults.correct++;
+        }
+
+        // Track by module
+        if (!this.state.quizResults.byModule[lessonId]) {
+            this.state.quizResults.byModule[lessonId] = { attempted: 0, correct: 0 };
+        }
+        this.state.quizResults.byModule[lessonId].attempted++;
+        if (correct) {
+            this.state.quizResults.byModule[lessonId].correct++;
+        }
+
+        this.notifyListeners('quizAttempt');
+    },
+
+    /**
+     * Get quiz statistics
+     * @returns {Object}
+     */
+    getQuizStats() {
+        return this.state.quizResults;
+    },
+
+    /**
+     * Set a lesson trigger flag
+     * @param {string} triggerName
+     */
+    setLessonTrigger(triggerName) {
+        if (this.state.lessonTriggers.hasOwnProperty(triggerName)) {
+            this.state.lessonTriggers[triggerName] = true;
+            this.notifyListeners('lessonTrigger');
+        }
+    },
+
+    /**
+     * Check if a lesson trigger has been set
+     * @param {string} triggerName
+     * @returns {boolean}
+     */
+    hasLessonTrigger(triggerName) {
+        return this.state.lessonTriggers[triggerName] === true;
     },
 
     // ========================================================================

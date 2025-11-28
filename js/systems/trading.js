@@ -236,6 +236,24 @@ const Trading = {
 
         const positionId = GameState.addPhysicalPosition(position);
 
+        // Trigger first trade lesson
+        if (!GameState.hasLessonTrigger('firstTrade')) {
+            GameState.setLessonTrigger('firstTrade');
+            if (typeof Microlearning !== 'undefined') {
+                Microlearning.triggerLesson('reading_trade_ticket');
+            }
+        }
+
+        // Trigger first LOC use lesson
+        if (financing === 'loc' && !GameState.hasLessonTrigger('firstLOCUse')) {
+            GameState.setLessonTrigger('firstLOCUse');
+            if (typeof Microlearning !== 'undefined') {
+                setTimeout(() => {
+                    Microlearning.triggerLesson('loc_financing');
+                }, 2000); // Delay to not overwhelm with lessons
+            }
+        }
+
         // Close modal
         this.closeModal('buy-modal');
 
@@ -397,6 +415,16 @@ const Trading = {
             type: 'physical'
         });
 
+        // Trigger first loss lesson
+        if (profit < 0 && !GameState.hasLessonTrigger('firstLoss')) {
+            GameState.setLessonTrigger('firstLoss');
+            if (typeof Microlearning !== 'undefined') {
+                setTimeout(() => {
+                    Microlearning.triggerLesson('freight_impact');
+                }, 2000);
+            }
+        }
+
         // Close modal
         this.closeModal('sell-modal');
 
@@ -555,6 +583,16 @@ const Trading = {
         };
 
         const positionId = GameState.addFuturesPosition(position);
+
+        // Trigger first futures position lesson
+        if (!GameState.hasLessonTrigger('firstFuturesPosition')) {
+            GameState.setLessonTrigger('firstFuturesPosition');
+            if (typeof Microlearning !== 'undefined') {
+                setTimeout(() => {
+                    Microlearning.triggerLesson('margin_management');
+                }, 2000);
+            }
+        }
 
         // Record hedge for progression
         if (action === 'sell') {
